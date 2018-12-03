@@ -3,16 +3,6 @@ import fs from 'fs';
 import url from 'url';
 import path from 'path';
 
-
-// Lines 1–4 import our dependency modules from the Node core package.
-// 1. http: To create a http based server/client. In this case we would be using it to create a server.
-// 2. fs: FileSystem module to help us with file/folders related operations
-// 3. url: Uniform Resource Locator module to help us with URL related operations
-// 4. path: File system paths module to help us with path related operations.
-// Lines 10–73 declares our function which will be used as a callback for handling client requests on the http server. The code has been heavily commented and I advice that you read the comments to better understand what we are doing.
-// Lines 80–88 creates our http server, passes in our callback to handle client requests and finally starts our server to listen on a specified port.
-
-
 /**
  * Function to be used as a callback to our http.createServer method
  * It handles incoming requests and sends the response
@@ -30,7 +20,7 @@ function requestHandler(request, response) {
   fs.exists(requestedResource, function(exists) {
     // check if file does't exist and return a 404 status (File not found)
     if(!exists) {
-      response.writeHead(404, { "Content-Type": "text/plain" });
+      response.writeHead(404, {"Content-Type": "text/plain"});
       response.write("404 Not Found\n");
       response.end();
       return;
@@ -38,7 +28,9 @@ function requestHandler(request, response) {
 
     // Check if the reqested resource is a directory. If it is, just set our
     // index.html page as the requested resource.
-    if(fs.statSync(requestedResource).isDirectory()) requestedResource += '/index.html';
+    if (fs.statSync(requestedResource).isDirectory()) {
+      requestedResource += '/index.html';
+    }
 
     // Finally, we read the requested file (asynchronously) and send it's
     // content to the client
@@ -49,8 +41,8 @@ function requestHandler(request, response) {
 
       // If an error occured while reading the file, send the error message
       // with a status code of 500 (Internal server error)
-      if(err) {
-        response.writeHead(500, { "Content-Type": "text/plain" });
+      if (err) {
+        response.writeHead(500, {"Content-Type": "text/plain"});
         response.write(err + "\n");
         response.end();
         return;
@@ -64,22 +56,33 @@ function requestHandler(request, response) {
         '.js':   "text/javascript"
       };
 
-      const headers = {}; // Helper object to hold our headers
-      const contentType = contentTypesByExtension[path.extname(requestedResource)]; // get the content type using the requested resource file extension
+      // Helper object to hold our headers
+      const headers = {};
+      // get the content type using the requested resource file extension
+      const contentType = contentTypesByExtension[
+        path.extname(requestedResource)
+      ];
 
       // if the requested resource maps to any of our content type extension,
       // then set the Content-Type field for our response headers.
-      if(contentType) headers["Content-Type"] = contentType;
+      if (contentType) {
+        headers["Content-Type"] = contentType;
+      }
 
       response.writeHead(200, headers); // write response header (if any)
       response.write(file, "binary"); // write content of read file (binary format)
       response.end(); // send response and close request
     });
+
   });
 }
 
-const server = http.createServer(requestHandler); // create an instance of our httpServer and passing in our request handler callback
-const portNumber = 3030; // declare our port noumber
-
+// create an instance of our httpServer and passing in our request handler callback
+const server = http.createServer(requestHandler);
+// declare our port noumber
+const portNumber = 3030;
 // setup our server to start listening on the port we specified
-server.listen(portNumber, () => console.log(`Server listening on port ${portNumber}`)); // log to our console, so we know our server is up and running.
+server.listen(portNumber, function () {
+  // log to our console, so we know our server is up and running.
+  console.log(`Server listening on port ${portNumber}`);
+});
